@@ -60,8 +60,9 @@ use it.
 ### How it works
 
 1. Staff open the **LEAP SQL Helper** side panel while working in Polaris LEAP
-2. They type a plain-English question — *"find all patrons between 18 and 54 who live in
-   Rochester Hills with activity in the last 6 months"*
+2. They type a plain-English question — *"Help me find all the patrons between the ages of 18
+   and 54 who live in Rochester Hills Michigan and have had activity on their account in the
+   last 6 months"*
 3. The extension sends the question to RHPL's local AI (running on-premises at
    `localai.rhpl.org`) and receives back a complete SQL query with a plain-English
    explanation of what it does
