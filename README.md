@@ -49,72 +49,6 @@ installation and configuration instructions.
 
 ---
 
-## LEAP SQL Helper — Chrome Extension
-
-To make the assistant as frictionless as possible for staff, RHPL built a companion Chrome
-extension that lives as a side panel inside the browser. Staff never leave Polaris LEAP to
-use it.
-
-![LEAP SQL Helper extension shown alongside the Polaris Find Tool](docs/leap-sql-helper.png)
-
-### How it works
-
-1. Staff open the **LEAP SQL Helper** side panel while working in Polaris LEAP
-2. They type a plain-English question — *"Help me find all the patrons between the ages of 18
-   and 54 who live in Rochester Hills Michigan and have had activity on their account in the
-   last 6 months"*
-3. The extension sends the question to RHPL's local AI (running on-premises at
-   `localai.rhpl.org`) and receives back a complete SQL query with a plain-English
-   explanation of what it does
-4. Staff click **Insert into LEAP** — the extension injects the SQL directly into the Find
-   Tool SQL input field and the search runs immediately
-
-No copy-paste, no tab switching, no SQL knowledge required. The query goes from question
-to results in seconds.
-
-### How it was built
-
-The extension is a Chrome Manifest V3 side panel extension. Key technical details:
-
-- **Side panel API** — renders as a persistent panel alongside LEAP, not a popup that closes
-  on click
-- **API call** — `POST` to the local Open WebUI instance (`/api/chat/completions`) using
-  the `polaris-sql-helper` model configured with the knowledge base and system prompts in
-  this repository
-- **SQL injection** — uses `chrome.scripting.executeScript` with a native value setter to
-  trigger LEAP's React change detection and fire the search automatically
-- **No external network calls** — the extension only communicates with `localai.rhpl.org`
-  (the library's internal server); nothing leaves the building
-- **Managed deployment** — distributed to all staff Chromebooks via Google Admin Console,
-  force-installed to the Staff OU with policy-managed settings (API URL, model ID)
-
-### For other libraries
-
-The complete extension source is included in this repository under
-[`leap-sql-extension/`](leap-sql-extension/). To deploy it at your library:
-
-1. **Set up the AI first** — you need a running Open WebUI instance with the
-   `polaris-sql-helper` model configured before the extension will work. See
-   [`polaris-qwen-guide.md`](polaris-qwen-guide.md).
-2. **Update `manifest.json`** — replace the two placeholder URLs in `host_permissions`
-   with your Open WebUI server URL and your Polaris LEAP URL.
-3. **Load the extension** — in Chrome, go to `chrome://extensions`, enable Developer Mode,
-   click **Load unpacked**, and select the `leap-sql-extension/` folder. This is sufficient
-   for testing.
-4. **Open Settings** in the extension and enter your Open WebUI API key, base URL, model ID,
-   and LEAP URL pattern.
-5. **For managed Chromebook deployment** — publish to the Chrome Web Store (unlisted is
-   fine for internal use), then add it to Google Admin Console under
-   **Devices → Chrome → Apps & Extensions** with Force install on your Staff OU. Use
-   [`admin-policy-example.json`](leap-sql-extension/admin-policy-example.json) as the
-   Policy for extensions JSON template — substitute your own API key and server URL.
-
-> **Note:** `YOUR_OPEN_WEBUI_API_KEY` in `admin-policy-example.json` is a placeholder.
-> Generate a real key in Open WebUI under **Admin → Settings → Account → API Keys**.
-> Never commit a real API key to the repository.
-
----
-
 ## Hardware Requirements
 
 A GPU is required. RHPL runs **Qwen3-14B** on an AMD Radeon AI PRO R9700 (32 GB VRAM).
@@ -138,6 +72,7 @@ polaris-qwen-guide.md    Full setup guide — start here
 schema/                  Polaris 8.0 database schema reference files
 sql-queries/             Example SQL queries organized by functional area
 prompts/                 System prompts for Open WebUI model configuration
+leap-sql-extension/      Chrome extension source — LEAP SQL Helper side panel
 sync-to-repo.sh          Script to sync updated files from local build dirs
 ```
 
@@ -212,6 +147,72 @@ in `polaris-qwen-guide.md`.
 
 If using a different front-end or API client, concatenate the schema and SQL files
 and include them as context in your system prompt or conversation.
+
+---
+
+## LEAP SQL Helper — Chrome Extension
+
+To make the assistant as frictionless as possible for staff, RHPL built a companion Chrome
+extension that lives as a side panel inside the browser. Staff never leave Polaris LEAP to
+use it.
+
+![LEAP SQL Helper extension shown alongside the Polaris Find Tool](docs/leap-sql-helper.png)
+
+### How it works
+
+1. Staff open the **LEAP SQL Helper** side panel while working in Polaris LEAP
+2. They type a plain-English question — *"Help me find all the patrons between the ages of 18
+   and 54 who live in Rochester Hills Michigan and have had activity on their account in the
+   last 6 months"*
+3. The extension sends the question to RHPL's local AI (running on-premises at
+   `localai.rhpl.org`) and receives back a complete SQL query with a plain-English
+   explanation of what it does
+4. Staff click **Insert into LEAP** — the extension injects the SQL directly into the Find
+   Tool SQL input field and the search runs immediately
+
+No copy-paste, no tab switching, no SQL knowledge required. The query goes from question
+to results in seconds.
+
+### How it was built
+
+The extension is a Chrome Manifest V3 side panel extension. Key technical details:
+
+- **Side panel API** — renders as a persistent panel alongside LEAP, not a popup that closes
+  on click
+- **API call** — `POST` to the local Open WebUI instance (`/api/chat/completions`) using
+  the `polaris-sql-helper` model configured with the knowledge base and system prompts in
+  this repository
+- **SQL injection** — uses `chrome.scripting.executeScript` with a native value setter to
+  trigger LEAP's React change detection and fire the search automatically
+- **No external network calls** — the extension only communicates with the library's internal
+  Open WebUI server; nothing leaves the building
+- **Managed deployment** — distributed to all staff Chromebooks via Google Admin Console,
+  force-installed to the Staff OU with policy-managed settings (API URL, model ID)
+
+### For other libraries
+
+The complete extension source is included in this repository under
+[`leap-sql-extension/`](leap-sql-extension/). To deploy it at your library:
+
+1. **Set up the AI first** — you need a running Open WebUI instance with the
+   `polaris-sql-helper` model configured before the extension will work. See
+   [`polaris-qwen-guide.md`](polaris-qwen-guide.md).
+2. **Update `manifest.json`** — replace the two placeholder URLs in `host_permissions`
+   with your Open WebUI server URL and your Polaris LEAP URL.
+3. **Load the extension** — in Chrome, go to `chrome://extensions`, enable Developer Mode,
+   click **Load unpacked**, and select the `leap-sql-extension/` folder. This is sufficient
+   for testing.
+4. **Open Settings** in the extension and enter your Open WebUI API key, base URL, model ID,
+   and LEAP URL pattern.
+5. **For managed Chromebook deployment** — publish to the Chrome Web Store (unlisted is
+   fine for internal use), then add it to Google Admin Console under
+   **Devices → Chrome → Apps & Extensions** with Force install on your Staff OU. Use
+   [`admin-policy-example.json`](leap-sql-extension/admin-policy-example.json) as the
+   Policy for extensions JSON template — substitute your own API key and server URL.
+
+> **Note:** `YOUR_OPEN_WEBUI_API_KEY` in `admin-policy-example.json` is a placeholder.
+> Generate a real key in Open WebUI under **Admin → Settings → Account → API Keys**.
+> Never commit a real API key to the repository.
 
 ---
 
