@@ -118,7 +118,7 @@ function displayResponse(content) {
   responseText.textContent = content;
   chatArea.classList.remove("hidden");
 
-  const sqlMatch = content.match(/```sql\s*([\s\S]*?)```/i);
+  const sqlMatch = content.match(/```(?:sql|tsql|mssql|t-sql)\s*([\s\S]*?)```/i);
   if (sqlMatch) {
     currentSQL = sqlMatch[1].trim();
     sqlCode.textContent = currentSQL;
