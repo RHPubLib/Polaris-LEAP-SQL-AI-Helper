@@ -2,6 +2,11 @@
 polaris-ai-guide-*.zip
 test-bib-weeded-deleted.sql
 
+# Credentials
+.env
+.env.*
+!.env.example
+
 # Internal SQL Statements directory (456 files)
 SQL Statements/
 
