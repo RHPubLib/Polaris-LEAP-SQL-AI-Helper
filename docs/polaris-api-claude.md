@@ -254,4 +254,17 @@ https://{polaris-server}/PolarisAPI/swagger
 ```
 or available from Clarivate's support portal (requires login).
 
-The Swagger UI at `/PolarisAPI/swagger` lists all available endpoints, parameters, and response schemas for your installed Polaris version — it is the authoritative reference for endpoint-specific fields.
+The Swagger UI lists all available endpoints, parameters, and response schemas for your installed Polaris version — it is the authoritative reference for endpoint-specific fields. RHPL's swagger UI is at:
+```
+https://catalog.rhpl.org/PAPIService/swagger/index.html
+```
+
+## Notable absences (verified 2026-05-02)
+
+PAPI does NOT expose:
+- **Patron Merge** — merging two patron records is LEAP-UI only (or paid Clarivate work)
+- **Patron full update** (only `UpdatePatronNotes` exists for the Notes field)
+- **Patron barcode change** (`ItemsUpdateBarcodePut` is for cataloging items, not patrons)
+- **Patron delete**
+
+These constraints matter for any workflow that wants to consolidate duplicate patron records or change a patron's barcode programmatically — they have to happen via LEAP UI or a paid Clarivate workorder.
