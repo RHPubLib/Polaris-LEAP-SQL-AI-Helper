@@ -27,21 +27,25 @@ https://{polaris-server}/PolarisAPI/REST/{scope}/v1/{LangID}/{AppID}/{OrgID}/{en
 
 ## Authentication
 
-### IMPORTANT — auth scheme correction (2026-05-02)
+### CORRECTED 2026-05-02 — auth IS HMAC-SHA1 PWS signing
 
-The RHPL Polaris install uses **HTTP Basic auth**, not the HMAC-SHA1 PWS signing scheme described below. Confirmed by inspecting the swagger Authorize dialog at https://catalog.rhpl.org/PAPIService/swagger/index.html — it lists three named Basic-auth schemes:
+The Swagger UI dialog at https://catalog.rhpl.org/PAPIService/swagger/index.html shows three named "Basic auth" schemes (API/Patron/Staff), but **that's just the input form**. Under the hood the Swagger UI generates PWS HMAC-SHA1 signatures and sends them as `Authorization: PWS {AccessID}:{base64_signature}`. Confirmed by inspecting the actual curl command Swagger emits:
 
-| Scheme | Identity | Used for |
-|---|---|---|
-| **API** | `localpull` + password | General API key access (most public-scope endpoints) |
-| **Patron** | patron barcode + their PIN | Self-service operations as a specific patron |
-| **Staff** | `rhpl-ils\dbrown` + AD password | Admin operations — updating other patrons, cataloging |
+```
+Authorization: PWS localpull:QopfYMlePv96PSI/9aandb+/Vl4=
+PolarisDate: Sun, 03 May 2026 03:34:54 GMT
+```
 
-Send as standard `Authorization: Basic base64(username:password)` header.
+Notes:
+- The header name is **`PolarisDate`**, not `Date` (Polaris-specific)
+- Three identities are still relevant — but each has its own AccessID + Secret pair, not a Basic password:
+  - **API** (`localpull`) — general API access
+  - **Patron** — patron barcode + their PIN, for self-service ops
+  - **Staff** — for admin ops; first POST `/REST/protected/v1/.../authenticator/staff` to get an `AccessToken`, then send it as `X-PAPI-AccessToken` on subsequent calls
+- Public-scope endpoints typically need only API PWS auth
+- Protected-scope endpoints additionally need the `X-PAPI-AccessToken` from staff auth
 
-The HMAC-SHA1 description below is the legacy PAPI scheme from older Polaris versions and is preserved for historical reference. **Do not use it for current RHPL calls.**
-
-### Legacy: HMAC-SHA1 PWS signing (older Polaris versions)
+### HMAC-SHA1 PWS signing details
 
 Every request must include:
 1. An HTTP `Date` header in RFC 1123 format
