@@ -27,7 +27,21 @@ https://{polaris-server}/PolarisAPI/REST/{scope}/v1/{LangID}/{AppID}/{OrgID}/{en
 
 ## Authentication
 
-### Public methods (scope = `public`)
+### IMPORTANT — auth scheme correction (2026-05-02)
+
+The RHPL Polaris install uses **HTTP Basic auth**, not the HMAC-SHA1 PWS signing scheme described below. Confirmed by inspecting the swagger Authorize dialog at https://catalog.rhpl.org/PAPIService/swagger/index.html — it lists three named Basic-auth schemes:
+
+| Scheme | Identity | Used for |
+|---|---|---|
+| **API** | `localpull` + password | General API key access (most public-scope endpoints) |
+| **Patron** | patron barcode + their PIN | Self-service operations as a specific patron |
+| **Staff** | `rhpl-ils\dbrown` + AD password | Admin operations — updating other patrons, cataloging |
+
+Send as standard `Authorization: Basic base64(username:password)` header.
+
+The HMAC-SHA1 description below is the legacy PAPI scheme from older Polaris versions and is preserved for historical reference. **Do not use it for current RHPL calls.**
+
+### Legacy: HMAC-SHA1 PWS signing (older Polaris versions)
 
 Every request must include:
 1. An HTTP `Date` header in RFC 1123 format
