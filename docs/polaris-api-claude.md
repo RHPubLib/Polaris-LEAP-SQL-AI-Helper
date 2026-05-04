@@ -264,6 +264,14 @@ else:
 
 ---
 
+## Local mirror of the full PAPI reference
+
+Pulled the entire III Polaris 8.0 PAPI doc set (135 pages) on 2026-05-04. Lives at:
+```
+/var/opt/rhpl/polarissql/docs/papi-reference/
+```
+Start at `INDEX.md` — pages are categorized (Authentication, Holds, Patron Self-Service Updates, etc.). Each `.md` file links to its source URL.
+
 ## Polaris API Documentation
 
 The official Polaris PAPI documentation is distributed with each Polaris version. If you have access to the Polaris server, the docs are typically at:
